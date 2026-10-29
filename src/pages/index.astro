@@ -1,16 +1,249 @@
 ---
+import Layout from "../layouts/Layout.astro";
+import { NEGOCIO, SERVICIOS } from "../config.js";
+
+const wa = (texto) =>
+  `https://wa.me/${NEGOCIO.whatsapp}?text=${encodeURIComponent(texto)}`;
+
+const waReserva = wa(`Hola, quiero reservar una cita en ${NEGOCIO.nombre}.`);
+const mapa = `https://www.google.com/maps?q=${encodeURIComponent(
+  NEGOCIO.direccion
+)}&output=embed`;
+const comoLlegar = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  NEGOCIO.direccion
+)}`;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "DaySpa",
+  name: NEGOCIO.nombre,
+  telephone: "+523511033667",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "C. Aquiles Serdán 14, Centro",
+    addressLocality: "Chilchota",
+    addressRegion: "Michoacán",
+    addressCountry: "MX",
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "16:00",
+      closes: "20:00",
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: "Saturday",
+      opens: "09:00",
+      closes: "14:00",
+    },
+  ],
+};
+const year = new Date().getFullYear();
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Spa en Chilchota, Michoacán | Clínica Prados — masajes y faciales">
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+  <header class="top">
+    <div class="container top-inner">
+      <a class="brand" href="#inicio">
+        {NEGOCIO.nombre}
+        <small>Spa · Chilchota</small>
+      </a>
+      <nav>
+        <a href="#servicios">Servicios</a>
+        <a href="#ubicacion">Ubicación</a>
+        <a class="btn btn-primary" href="#reservar">Reservar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container">
+        <span class="eyebrow">Spa en Chilchota, Michoacán</span>
+        <h1>Tu momento de descanso en Chilchota</h1>
+        <p>
+          Masajes, faciales, pedicura y tratamientos corporales en el centro de
+          Chilchota. Reserva tu cita por WhatsApp en un minuto.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" href={waReserva} target="_blank" rel="noopener">
+            Reservar por WhatsApp
+          </a>
+          <a class="btn btn-ghost" href="#servicios">Ver servicios</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="servicios">
+      <div class="container">
+        <h2>Nuestros servicios</h2>
+        <p>Elige el tratamiento que necesitas y reserva tu lugar.</p>
+        <div class="grid">
+          {SERVICIOS.map((s) => (
+            <div class="card">
+              <div class="icon">{s.icono}</div>
+              <h3>{s.nombre}</h3>
+              <p>{s.texto}</p>
+              {s.precio && <span class="price">{s.precio}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt">
+      <div class="container">
+        <h2>Un espacio para consentirte</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Atención personalizada</h3>
+            <p>Cada sesión se adapta a lo que necesitas.</p>
+          </div>
+          <div class="card">
+            <h3>Un lugar para descansar</h3>
+            <p>Un ambiente pensado para que te desconectes un rato.</p>
+          </div>
+          <div class="card">
+            <h3>Con cita, para ti</h3>
+            <p>Reserva tu horario y ten tu momento asegurado.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="ubicacion">
+      <div class="container two">
+        <div>
+          <h2>Horario y ubicación</h2>
+          <ul class="hours">
+            {NEGOCIO.horario.map((h) => (
+              <li>
+                <span>{h.dias}</span>
+                <strong>{h.horas}</strong>
+              </li>
+            ))}
+          </ul>
+          <p>{NEGOCIO.direccion}</p>
+          <p>Teléfono: {NEGOCIO.telefono}</p>
+          <div class="actions">
+            <a class="btn btn-ghost" href={comoLlegar} target="_blank" rel="noopener">
+              Cómo llegar
+            </a>
+          </div>
+        </div>
+        <iframe
+          class="map"
+          title="Mapa de Clínica Prados"
+          src={mapa}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </section>
+
+    <section class="section alt" id="reservar">
+      <div class="container">
+        <h2>Reserva tu cita</h2>
+        <p>Llena los datos y se abrirá WhatsApp con tu mensaje listo.</p>
+        <form id="reserva" class="form">
+          <label>
+            Tu nombre
+            <input name="nombre" required autocomplete="name" />
+          </label>
+          <label>
+            Servicio
+            <select name="servicio" required>
+              {SERVICIOS.map((s) => <option>{s.nombre}</option>)}
+              <option>Otro / aún no lo sé</option>
+            </select>
+          </label>
+          <label>
+            Día preferido
+            <input type="date" name="dia" />
+          </label>
+          <label>
+            Horario
+            <select name="horario">
+              <option>4:00 – 6:00 p. m.</option>
+              <option>6:00 – 8:00 p. m.</option>
+              <option>Sábado por la mañana</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" type="submit">Enviar por WhatsApp</button>
+          <p class="note">Tu cita queda confirmada cuando te respondamos por WhatsApp.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2>Preguntas frecuentes</h2>
+        <div class="faq">
+          <details>
+            <summary>¿Necesito reservar?</summary>
+            <p>
+              Te recomendamos reservar para asegurar tu lugar. Puedes hacerlo por
+              WhatsApp en un minuto.
+            </p>
+          </details>
+          <details>
+            <summary>¿Cómo cambio mi cita?</summary>
+            <p>Escríbenos por WhatsApp con anticipación y la reagendamos.</p>
+          </details>
+          <details>
+            <summary>¿Cuál es el horario?</summary>
+            <p>
+              De lunes a viernes de 4:00 a 8:00 p. m. y sábados de 9:00 a. m. a
+              2:00 p. m. Los domingos estamos cerrados.
+            </p>
+          </details>
+          <details>
+            <summary>¿Dónde están?</summary>
+            <p>{NEGOCIO.direccion}.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© {year} {NEGOCIO.nombre}</span>
+      <span>Sitio hecho por <a href="https://webwizards.site">Web Wizards</a></span>
+    </div>
+  </footer>
+
+  <a class="wa-float" href={waReserva} target="_blank" rel="noopener">
+    💬 Reservar
+  </a>
+
+  <script is:inline define:vars={{ numero: NEGOCIO.whatsapp, nombre: NEGOCIO.nombre }}>
+    const form = document.getElementById("reserva");
+    form?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const d = new FormData(form);
+      let dia = d.get("dia");
+      if (dia) {
+        const [y, m, n] = dia.split("-").map(Number);
+        dia = new Date(y, m - 1, n).toLocaleDateString("es-MX", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        });
+      }
+      const texto =
+        `Hola, soy ${d.get("nombre")}. Quiero reservar: ${d.get("servicio")}` +
+        (dia ? `, el ${dia}` : "") +
+        (d.get("horario") ? `, en horario ${d.get("horario")}` : "") +
+        `. ¿Hay disponibilidad? (${nombre})`;
+      window.open(
+        `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,
+        "_blank",
+        "noopener"
+      );
+    });
+  </script>
+</Layout>
